@@ -55,7 +55,7 @@ namespace Utilities {
         return result;
     }
 
-    inline vector<string> extractGenres(string& subjectField, unordered_set<string>& genreSet) {
+    vector<string> extractGenres(string& subjectField, unordered_set<string>& genreSet) {
         vector<string> matchedGenres;
 
         // Delimiters
