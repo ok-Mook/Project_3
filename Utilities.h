@@ -24,14 +24,10 @@ namespace Utilities {
         }
     }
 
-    vector<string> splitGenres(string& s) {
-        vector<string> result;
-        stringstream ss(s);
-        string item;
-        while (getline(ss, item, ',')) {
-            result.push_back(trim(item));
-        }
-        return result;
+    string getPrice(string& s) {
+        size_t pos = s.find('$');
+        if (pos != string::npos && pos + 1 < s.length()) {return s.substr(pos + 1);}
+        return "Price Unknown";
     }
 
     vector<string> splitCSVLine(string& line) {
@@ -53,28 +49,6 @@ namespace Utilities {
 
         result.push_back(trim(field));
         return result;
-    }
-
-    inline vector<string> extractGenres(string& subjectField, unordered_set<string>& genreSet) {
-        vector<string> matchedGenres;
-
-        // Delimiters
-        string cleaned = subjectField;
-        replace(cleaned.begin(), cleaned.end(), ',', ';');
-        replace(cleaned.begin(), cleaned.end(), '-', ' ');
-        stringstream ss(cleaned);
-        string token;
-
-        while (getline(ss, token, ';')) {
-            string phrase = trim(token);
-            for (auto& genre : genreSet) {
-                if (phrase.find(genre) != string::npos) {
-                    matchedGenres.push_back(genre);
-                    break;
-                }
-            }
-        }
-        return matchedGenres;
     }
 
 

@@ -18,18 +18,20 @@ class Book {
     string title;
     string author;
     string genre;
+    string publisher;
     string publicationDate;
+    string price;
 
     Book() = default;
-    Book(string& title, string& author, string& genre, string& date)
-     : title(title), author(author), genre(genre), publicationDate(date) {}
+    Book(string& title, string& author, string& genre, string& publisher, string& date, string& price)
+     : title(title), author(author), genre(genre), publisher(publisher), publicationDate(date), price(price) {}
     // Can expand constructor later on
 
     bool operator < (Book& other) {return title < other.title;} // Simple title sort
     bool operator == (Book& other) {return title == other.title;} // May need more comparisons depending on use case
     bool operator != (Book& other) {return title != other.title;} // ^^
 
-  string bookPrint() {return "Title: " + title + " by " + author + " (Published: " + publicationDate  + ") " + "-- Genre: " + genre;}
+  string bookPrint() {return "Title: " + title + ", " + author + " (Published: " + publicationDate  + ") " + " Genre(s) [" + genre + "] " + "Price: $" + price;}
 
 
   }; // End Class
@@ -48,26 +50,17 @@ vector<Book> loadBooksFromCSV(string& filename) {
 
   while (getline(file, line)) {
     vector<string> fields = splitCSVLine(line);
-    if (fields.size() < 38) continue;
+    if (fields.size() < 6) continue;
 
-    string title = trim(fields[3]);
-    string author = trim(fields[11]);
-    string subjects = trim(fields[2]);
-    string date = trim(fields[13]);
+    string title = trim(fields[0]);
+    string author = trim(fields[1]);
+    string genre = trim(fields[3]);
+    string publisher = trim(fields[4]);
+    string date = trim(fields[5]);
+    string price = getPrice(fields[6]);
 
-    unordered_set<string> genreSet = {
-      "Fiction", "Romance", "Fantasy", "Science Fiction",
-      "Adventure", "Mystery", "Gothic", "Historical", "Satire", "Psychological"
-    }; // Will add more genres or find a more efficient way
-
-
-    string genre = "Unknown";
-    vector<string> matchedGenres = extractGenres(subjects, genreSet);
-    if (!matchedGenres.empty()) {
-      genre = matchedGenres[0];
-    }
-
-    books.emplace_back(title, author, genre, date);
+    if (genre == "") {genre = "Unknown";}
+    books.emplace_back(title, author, genre,publisher, date, price);
   }
 
   return books;
