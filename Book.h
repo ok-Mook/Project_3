@@ -22,20 +22,21 @@ class Book {
     string publicationDate;
     string price;
 
-    Book() = default;
+    //Book() = default;
     Book(string& title, string& author, string& genre, string& publisher, string& date, string& price)
      : title(title), author(author), genre(genre), publisher(publisher), publicationDate(date), price(price) {}
-    // Can expand constructor later on
-
-    bool operator < (Book& other) {return title < other.title;} // Simple title sort
-    bool operator == (Book& other) {return title == other.title;} // May need more comparisons depending on use case
-    bool operator != (Book& other) {return title != other.title;} // ^^
 
   string bookPrint() {return "Title: " + title + ", " + author + " (Published: " + publicationDate  + ") " + " Genre(s) [" + genre + "] " + "Price: $" + price;}
 
 
   }; // End Class
 
+bool compareByTitle(Book& a, Book& b) {return a.title < b.title;}
+bool compareByAuthor(Book& a, Book& b) {return a.author < b.author;}
+bool compareByGenre(Book& a, Book& b) {return a.genre < b.genre;}
+bool compareByDate(Book& a, Book& b) {return a.publicationDate < b.publicationDate;}
+bool compareByPublisher(Book& a, Book& b) {return a.publisher < b.publisher;}
+bool compareByPrice(Book& a, Book& b) {return a.price < b.price;}
 
 vector<Book> loadBooksFromCSV(string& filename) {
   vector<Book> books;
@@ -50,7 +51,7 @@ vector<Book> loadBooksFromCSV(string& filename) {
 
   while (getline(file, line)) {
     vector<string> fields = splitCSVLine(line);
-    if (fields.size() < 6) continue;
+    if (fields.size() < 6) {continue;}
 
     string title = trim(fields[0]);
     string author = trim(fields[1]);
@@ -58,7 +59,6 @@ vector<Book> loadBooksFromCSV(string& filename) {
     string publisher = trim(fields[4]);
     string date = trim(fields[5]);
     string price = getPrice(fields[6]);
-
     if (genre == "") {genre = "Unknown";}
     books.emplace_back(title, author, genre,publisher, date, price);
   }

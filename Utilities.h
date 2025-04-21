@@ -51,6 +51,22 @@ namespace Utilities {
         return result;
     }
 
+    template <typename T, typename Compare>
+    void quickSort(vector<T>& arr, int left, int right, Compare comp, int& comparisonCount) { // Comparison Count for analysis
+        if (left >= right) return;
+        int pivotIndex = left + (right - left) / 2;
+        T pivotvalue = arr[pivotIndex];
+
+        int i = left, j = right;
+        while (i <= j) {
+            while (comp(arr[i], pivotvalue)) {i++; comparisonCount++;}
+            while (comp(pivotvalue, arr[j])) {j--; comparisonCount++;}
+            comparisonCount++;
+            if (i <= j) {swap(arr[i], arr[j]); i++; j--;}
+        }
+        if (left < j) quickSort(arr, left, j, comp, comparisonCount);
+        if (right > i) quickSort(arr, i, right, comp, comparisonCount);
+    }
 
 }
 
