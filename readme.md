@@ -1,6 +1,7 @@
 ## How to Run
 1. Open the project in CLion or your preferred C++ IDE.
 2. Place the dataset CSV (`BooksDataset.csv`) in the working directory.
+   - Can be found within the cmake-debug folder on Github
 3. Build and run the project.
 4. Use the menu to interact with the data.
 
