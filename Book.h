@@ -47,20 +47,19 @@ inline bool compareByAuthor(Book& a, Book& b) {
 bool compareByGenre(Book& a, Book& b) {return a.genre < b.genre;}
 bool compareByDate(Book& a, Book& b) {return a.publicationDate < b.publicationDate;}
 bool compareByPublisher(Book& a, Book& b) {return a.publisher < b.publisher;}
+
 bool compareByPrice(Book& a, Book& b) {
     string pa = a.price;
     string pb = b.price;
-
     pa.erase(remove(pa.begin(), pa.end(), ','), pa.end());
     pb.erase(remove(pb.begin(), pb.end(), ','), pb.end());
-
     return stof(pa) < stof(pb);
 }
+
 struct compareBookPrice { // For priority que (Max Heap)
     bool operator()(Book& a, Book& b) {
         string pa = a.price;
         string pb = b.price;
-
         pa.erase(remove(pa.begin(), pa.end(), ','), pa.end());
         pb.erase(remove(pb.begin(), pb.end(), ','), pb.end());
         return stof(pa) < stof(pb);
@@ -84,7 +83,7 @@ vector<Book> loadBooksFromCSV(string& filename) {
   }
 
   string line;
-  getline(file, line); // Skip header
+  getline(file, line);
 
   while (getline(file, line)) {
     vector<string> fields = splitCSVLine(line);
@@ -99,7 +98,6 @@ vector<Book> loadBooksFromCSV(string& filename) {
     if (genre == "") {genre = "Unknown";}
     books.emplace_back(title, author, genre,publisher, date, price);
   }
-
   return books;
 }
 // CSV Load
@@ -112,14 +110,9 @@ vector<Book> searchBooks(vector<Book>& books, string& keyword, string& field) {
     if (field == "title") target = books[i].title;
     else if (field == "author") target = books[i].author;
     else if (field == "genre") {
-        string loweredKeyword = keyword;
-        transform(loweredKeyword.begin(), loweredKeyword.end(), loweredKeyword.begin(), ::tolower);
-        if (genreMatch(books[i].genre, loweredKeyword)) {results.push_back(books[i]);}
+        if (genreMatch(books[i].genre, keyword)) {results.push_back(books[i]);}
     }
-
-    if (target.find(keyword) != string::npos) {
-      results.push_back(books[i]);
-    }
+    if (target.find(keyword) != string::npos) {results.push_back(books[i]);}
   }
   return results;
 }
@@ -137,6 +130,50 @@ vector<Book> getTopNExpensiveBooks(vector<Book>& books, int N) {
     return result;
 }
 // Uhhhhhh
+
+
+// Recommend
+vector<Book> recommendSimilarBooks(vector<Book>& books, string title) {
+    vector<Book> results;
+    Book target;
+
+    bool found = false;
+    for (int i = 0; i < books.size(); ++i) {
+        if (toLower(books[i].title) == toLower(title)) {
+            target = books[i];
+            found = true;
+            break;
+        }
+    }
+
+    if (!found) {cout << "Book not found.\n"; return results;}
+
+    vector<int> scores(books.size(), 0);
+    for (int i = 0; i < books.size(); ++i) {
+        if (books[i].title == target.title) continue;
+        if (books[i].genre == target.genre) scores[i]++;
+        if (books[i].author == target.author) scores[i]++;
+        if (books[i].publisher == target.publisher) scores[i]++;
+    }
+
+    for (int count = 0; count < 5; ++count) {
+        int maxIndex = -1;
+        int maxScore = -1;
+        for (int i = 0; i < books.size(); ++i) {
+            if (scores[i] > maxScore) {
+                maxScore = scores[i];
+                maxIndex = i;
+            }
+        }
+
+        if (maxScore == 0) {break;}
+        results.push_back(books[maxIndex]);
+        scores[maxIndex] = -1;
+    }
+    return results;
+}
+// Recommend
+
 
 // Bench
 void benchmarkSorts(vector<Book>& books, string field) {
@@ -167,8 +204,9 @@ void benchmarkSorts(vector<Book>& books, string field) {
     double timeDiff = 100.0 * abs(quickTime - mergeTime) / (quickTime + mergeTime);
 
     cout << "\nBenchmark Results: Sort by " << field << " (Descending)\n";
-    cout << "QuickSort:\n  Comparisons: " << quickComparisons << "\n  Time: " << quickTime << "s\n";
-    cout << "MergeSort:\n  Comparisons: " << mergeComparisons << "\n  Time: " << mergeTime << "s\n";
+    cout << "QuickSort:\n  Comparisons: " << quickComparisons << "\n  Time: " << fixed << setprecision(5) << quickTime << "(s)\n";
+    cout << "MergeSort:\n  Comparisons: " << mergeComparisons << "\n  Time: " << fixed << setprecision(5) << mergeTime << "(s)\n";
+    cout.unsetf(ios::fixed);
     cout << fixed << setprecision(2);
     cout << "\nComparison Summary:\n";
     if (mergeComparisons < quickComparisons)
@@ -204,7 +242,7 @@ void menuLoop(vector<Book>& books) {
 
         int comparisons = 0;
         auto start = chrono::high_resolution_clock::now();
-
+        bool recommend = false;
         switch (choice) {
             case 1:
                 if (optionChoice == 'A' || optionChoice == 'a') {
@@ -275,6 +313,17 @@ void menuLoop(vector<Book>& books) {
                 benchmarkSorts(books, field);
                 continue;
             }
+            case 8: {
+                recommend = !recommend;
+                string title;
+                cout << "Enter the title of a book: ";
+                cin >> title;
+                vector<Book> recs = recommendSimilarBooks(books, title);
+                for (int i = 0; i < recs.size(); ++i) {
+                    cout << recs[i].bookPrint() << "\n";
+                }
+                break;
+            }
             default:
                 cout << "Invalid option.\n";
                 continue;
@@ -282,8 +331,11 @@ void menuLoop(vector<Book>& books) {
 
         auto end = chrono::high_resolution_clock::now();
         chrono::duration<double> duration = end - start;
-        cout << "Comparisons made: " << comparisons << "\n";
-        cout << "Elapsed time: " << duration.count() << " seconds\n";
+        if (!recommend) {
+            cout << "Comparisons made: " << comparisons << "\n";
+            cout << "Elapsed time: " << duration.count() << " seconds\n";
+        }
+        recommend = false;
     }
 }
 // Menu Loop

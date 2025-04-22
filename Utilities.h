@@ -54,6 +54,14 @@ namespace Utilities {
         return result;
     }
     // CSV
+
+    // Price
+    string getPrice(string& s) {
+        size_t pos = s.find('$');
+        if (pos != string::npos && pos + 1 < s.length()) {return s.substr(pos + 1);}
+        return "Price Unknown";
+    }
+    // Price
     // Parsing Helpers
 
 
@@ -63,8 +71,7 @@ namespace Utilities {
         string author = trim(raw);
 
         if (author.substr(0, 3) == "By ") {author = trim(author.substr(3));}
-        while (!author.empty() && (author.back() == '.' || author.back() == ',')) {author.pop_back();}
-        if (author == "#value!" || author == "." || author == ".." || author == "#REF!") {return "Unknown";}
+        if (author == "#value!" || author == ".") {return "Unknown";}
         if (!author.empty() && author.front() == '\'' && author.back() == '\'') {author = author.substr(1, author.length() - 2);}
 
         size_t open = 0;
@@ -128,11 +135,7 @@ namespace Utilities {
 
 
     // This Other Guy
-    string getPrice(string& s) {
-        size_t pos = s.find('$');
-        if (pos != string::npos && pos + 1 < s.length()) {return s.substr(pos + 1);}
-        return "Price Unknown";
-    }
+
     // This Other Guy
 
 
@@ -201,6 +204,7 @@ namespace Utilities {
         cout << "5. Search books\n";
         cout << "6. Show top-N expensive books\n";
         cout << "7. Benchmark QuickSort vs MergeSort\n";
+        cout << "8. Recommend based on Title\n";
         cout << "0. Exit\n";
     }
 
@@ -210,9 +214,6 @@ namespace Utilities {
         cout << "B. MergeSort\n";
     }
     // Display Functions
-
-
-
 
 
 }
