@@ -27,7 +27,7 @@ class Book {
     Book(string& title, string& author, string& genre, string& publisher, string& date, string& price)
      : title(title), author(author), genre(genre), publisher(publisher), publicationDate(date), price(price) {}
 
-  string bookPrint() {return "Title: " + title + ", By " + author + " (Published: " + publicationDate  + ") " + " Genre(s) [" + genre + "] " + "Price: $" + price;}
+  string bookPrint() {return "Title: " + title + ", By " + author + " (Published by " + publisher + " on " + publicationDate  + ") " + " Genre(s) [" + genre + "] " + "Price: $" + price;}
 
   };
 // Book Class
